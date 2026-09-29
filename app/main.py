@@ -11,6 +11,7 @@ from structlog.contextvars import bind_contextvars
 load_dotenv()
 
 from .agent import LabAgent
+from .audit import write_audit
 from .incidents import disable, enable, status
 from .logging_config import configure_logging, get_logger
 from .metrics import record_error, snapshot
@@ -85,6 +86,14 @@ async def chat(request: Request, body: ChatRequest) -> ChatResponse:
             tool_success=True,
             payload={"answer_preview": summarize_text(result.answer)},
         )
+        write_audit(
+            action="chat.request",
+            actor=f"user:{hash_user_id(body.user_id)}",
+            resource=f"feature:{body.feature}",
+            outcome="success",
+            correlation_id=request.state.correlation_id,
+            details={"session_id": body.session_id, "model": agent.model, "cost_usd": result.cost_usd},
+        )
         return ChatResponse(
             answer=result.answer,
             correlation_id=request.state.correlation_id,
@@ -106,24 +115,42 @@ async def chat(request: Request, body: ChatRequest) -> ChatResponse:
             tool_success=False if isinstance(exc, RuntimeError) else None,
             payload={"detail": str(exc), "message_preview": summarize_text(body.message)},
         )
+        write_audit(
+            action="chat.request",
+            actor=f"user:{hash_user_id(body.user_id)}",
+            resource=f"feature:{body.feature}",
+            outcome="failure",
+            correlation_id=request.state.correlation_id,
+            details={"session_id": body.session_id, "error_type": error_type},
+        )
         raise HTTPException(status_code=500, detail=error_type) from exc
 
 
 @app.post("/incidents/{name}/enable")
-async def enable_incident(name: str) -> JSONResponse:
+async def enable_incident(name: str, request: Request) -> JSONResponse:
+    actor = f"operator:{request.headers.get('x-operator', 'unknown')}"
     try:
         enable(name)
-        log.warning("incident_enabled", service="control", payload={"name": name})
-        return JSONResponse({"ok": True, "incidents": status()})
     except KeyError as exc:
+        write_audit("incident.enable", actor, f"incident:{name}", "denied", request.state.correlation_id,
+                    {"reason": "unknown_incident"})
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    log.warning("incident_enabled", service="control", payload={"name": name})
+    write_audit("incident.enable", actor, f"incident:{name}", "success", request.state.correlation_id,
+                {"incidents": status()})
+    return JSONResponse({"ok": True, "incidents": status()})
 
 
 @app.post("/incidents/{name}/disable")
-async def disable_incident(name: str) -> JSONResponse:
+async def disable_incident(name: str, request: Request) -> JSONResponse:
+    actor = f"operator:{request.headers.get('x-operator', 'unknown')}"
     try:
         disable(name)
-        log.warning("incident_disabled", service="control", payload={"name": name})
-        return JSONResponse({"ok": True, "incidents": status()})
     except KeyError as exc:
+        write_audit("incident.disable", actor, f"incident:{name}", "denied", request.state.correlation_id,
+                    {"reason": "unknown_incident"})
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    log.warning("incident_disabled", service="control", payload={"name": name})
+    write_audit("incident.disable", actor, f"incident:{name}", "success", request.state.correlation_id,
+                {"incidents": status()})
+    return JSONResponse({"ok": True, "incidents": status()})

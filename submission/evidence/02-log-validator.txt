@@ -1,3 +1,4 @@
+$ python scripts/validate_logs.py
 --- Lab Verification Results ---
 Total log records analyzed: 347
 Records with missing required fields: 0

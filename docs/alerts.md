@@ -8,10 +8,10 @@ Mỗi alert dựa trên triệu chứng người dùng hoặc SLO, không dựa 
 - Severity: P2
 - Duration: 5m
 - Kênh thông báo: Slack (#day13-alerts)
-- SLI/SLO liên quan: fast_successful_requests (latency ≤ 3000ms, target 99.5%)
-- Điều kiện và thời gian duy trì: `p95(latency_ms) > 3000 on response_sent` liên tục trong 5m
-- Ảnh hưởng tới người dùng: Người dùng chờ > 3s; nguy cơ đốt error budget nhanh.
-- Ba bước kiểm tra đầu tiên: 1) Dashboard panel Latency: xác nhận P95/TTFT tăng. 2) Lọc data/logs.jsonl theo latency_ms > 3000, lấy correlation_id. 3) Mở trace cùng correlation_id, xem span retrieval vs llm-generate.
+- SLI/SLO liên quan: fast_successful_requests (latency ≤ 2000ms, target 99.5%)
+- Điều kiện và thời gian duy trì: `p95(latency_ms) > 2000 on response_sent` liên tục trong 5m
+- Ảnh hưởng tới người dùng: Người dùng chờ > 2s; nguy cơ đốt error budget nhanh.
+- Ba bước kiểm tra đầu tiên: 1) Dashboard panel Latency: xác nhận P95/TTFT tăng. 2) Lọc data/logs.jsonl theo latency_ms > 2000, lấy correlation_id. 3) Mở trace cùng correlation_id, xem span retrieval vs llm-generate.
 - Mitigation tạm thời: Tắt tính năng chậm/incident (rag_slow), scale hoặc rollback prompt production.
 - Owner: on-call-backend
 

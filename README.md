@@ -141,12 +141,48 @@ python scripts/load_test.py --challenge --concurrency 5
 
 Không tự tạo, sửa, chia sẻ hoặc lấy `config/challenge.json` từ lớp khác. Nếu chưa nhận file riêng, tiếp tục practice bằng tham số `--scenario`; không chạy challenge chính thức.
 
+## Dashboard, audit log và kiểm tra tự động
+
+Dashboard 6 panel được dựng từ `data/logs.jsonl` theo đúng contract `config/dashboard.yaml` (panel, đơn vị, threshold):
+
+```bash
+python scripts/render_dashboard.py                                   # 60 phút gần nhất -> data/dashboard.html
+python scripts/render_dashboard.py --end 2026-09-29T16:12:00+07:00   # cố định time range, như ảnh evidence 11
+```
+
+Mở `data/dashboard.html` bằng trình duyệt (trang tự refresh 30s). Để xuất ảnh PNG không cần chụp tay:
+
+```bash
+# macOS; trên Linux thay bằng google-chrome hoặc chromium
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars \
+  --force-device-scale-factor=2 --window-size=1400,1150 \
+  --screenshot=dashboard.png "file://$PWD/data/dashboard.html"
+```
+
+Audit log tách riêng khỏi log vận hành, ghi vào `AUDIT_LOG_PATH` (mặc định `data/audit.jsonl`); schema ở `config/audit_schema.json`, retention ở `config/audit_policy.yaml`:
+
+```bash
+python scripts/inject_incident.py --scenario rag_slow --operator <ten>   # hành động được ghi vào audit
+python scripts/audit_query.py --validate
+python scripts/audit_query.py --summary
+python scripts/audit_query.py --action incident.enable
+python scripts/audit_query.py --correlation-id req-xxxxxxxx
+python scripts/audit_query.py --purge --dry-run
+```
+
+Quét secret, file cấm commit và PII thô trước khi push (CI trong `.github/workflows/ci.yml` chạy lệnh này cùng pytest và dashboard validator):
+
+```bash
+python scripts/scan_secrets.py --logs data/logs.jsonl data/audit.jsonl
+```
+
 ## Kiểm tra trước khi nộp
 
 ```bash
 python -m pytest -q
 python scripts/validate_logs.py
 python scripts/validate_dashboard.py
+python scripts/scan_secrets.py --logs data/logs.jsonl data/audit.jsonl
 git status --short
 git log -1 --oneline
 ```

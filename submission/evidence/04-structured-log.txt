@@ -1,2 +1,41 @@
-{"service": "api", "payload": {"message_preview": "My email is [REDACTED_EMAIL] phone [REDACTED_PHONE_VN] CCCD [REDACTED_CCCD] card..."}, "event": "request_received", "feature": "qa", "model": "claude-sonnet-4-5", "session_id": "s_pii", "correlation_id": "req-5bdc4330", "env": "dev", "user_id_hash": "8eaeeec69eb2", "level": "info", "ts": "2026-09-29T07:05:38.723991Z"}
-{"service": "api", "latency_ms": 160, "ttft_ms": 55, "tokens_in": 40, "tokens_out": 97, "cost_usd": 0.001575, "quality_score": 0.9, "tool_name": "retrieval", "tool_success": true, "payload": {"answer_preview": "Starter answer. You should improve this output logic and add better quality chec..."}, "event": "response_sent", "feature": "qa", "model": "claude-sonnet-4-5", "session_id": "s_pii", "correlation_id": "req-5bdc4330", "env": "dev", "user_id_hash": "8eaeeec69eb2", "level": "info", "ts": "2026-09-29T07:05:38.884704Z"}
+# Structured log của một request (đọc trực tiếp data/logs.jsonl) — chạy trong repo lúc 2026-09-29 16:48:39 +0700
+
+$ grep req-5bdc4330 data/logs.jsonl | jq -C .
+{
+  "service": "api",
+  "payload": {
+    "message_preview": "My email is [REDACTED_EMAIL] phone [REDACTED_PHONE_VN] CCCD [REDACTED_CCCD] card..."
+  },
+  "event": "request_received",
+  "feature": "qa",
+  "model": "claude-sonnet-4-5",
+  "session_id": "s_pii",
+  "correlation_id": "req-5bdc4330",
+  "env": "dev",
+  "user_id_hash": "8eaeeec69eb2",
+  "level": "info",
+  "ts": "2026-09-29T07:05:38.723991Z"
+}
+{
+  "service": "api",
+  "latency_ms": 160,
+  "ttft_ms": 55,
+  "tokens_in": 40,
+  "tokens_out": 97,
+  "cost_usd": 0.001575,
+  "quality_score": 0.9,
+  "tool_name": "retrieval",
+  "tool_success": true,
+  "payload": {
+    "answer_preview": "Starter answer. You should improve this output logic and add better quality chec..."
+  },
+  "event": "response_sent",
+  "feature": "qa",
+  "model": "claude-sonnet-4-5",
+  "session_id": "s_pii",
+  "correlation_id": "req-5bdc4330",
+  "env": "dev",
+  "user_id_hash": "8eaeeec69eb2",
+  "level": "info",
+  "ts": "2026-09-29T07:05:38.884704Z"
+}

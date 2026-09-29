@@ -3,16 +3,19 @@ primary_slo:
   name: fast_successful_requests
   window: 28d
   sli:
-    good_event: 'event == "response_sent" and latency_ms <= 3000'
+    good_event: 'event == "response_sent" and latency_ms <= 2000'
     total_event: 'event == "request_received"'
   target_percent: 99.5
   error_budget_percent: 0.5
   note: >-
-    Giữ ngưỡng 3000ms vì baseline đo được P95 160ms, P99 160ms (41/41 request
-    đạt), nên còn nhiều headroom cho incident rag_slow mà vẫn phản ánh trải nghiệm
-    người dùng (chờ > 3s là chậm). Target 99.5% trên cửa sổ 28 ngày cho error
-    budget 0.5% = 5 request xấu trên mỗi 1000 request, tương đương khoảng
-    3.4 giờ nếu toàn bộ traffic xấu liên tục (0.005 x 28 x 24h).
+    Ngưỡng 2000ms lấy theo latency_threshold_ms của challenge K4-L3A, tức mức
+    người dùng bắt đầu thấy chậm. Baseline đo được P95 160ms, P99 160ms (41/41
+    request đạt), nên còn khoảng 12 lần headroom cho dao động bình thường. Ban
+    đầu ngưỡng là 3000ms; sau incident rag_slow (P95 2667ms vẫn "đạt" ở 3000ms)
+    đã hạ xuống 2000ms để SLO, dashboard và alert high_latency_p95 bắt được
+    loại sự cố này. Target 99.5% trên cửa sổ 28 ngày cho error budget 0.5% = 5
+    request xấu trên mỗi 1000 request, tương đương khoảng 3.4 giờ nếu toàn bộ
+    traffic xấu liên tục (0.005 x 28 x 24h).
 guardrails:
   error_rate_pct_max: 2
   daily_cost_usd_max: 2.5

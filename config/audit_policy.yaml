@@ -1,0 +1,11 @@
+audit:
+  path: data/audit.jsonl          # tách khỏi data/logs.jsonl; đã .gitignore
+  schema: config/audit_schema.json
+  retention_days: 90
+  note: >-
+    Log vận hành (logs.jsonl) phục vụ debug nên có thể xoay vòng nhanh; audit log
+    trả lời câu hỏi "ai đã bật incident / ai đã gọi feature nào, lúc nào" nên giữ
+    90 ngày, đủ dài hơn cửa sổ SLO 28 ngày để đối chiếu hậu kiểm. Chỉ append,
+    không sửa bản ghi; bản ghi quá hạn được xóa bằng
+    `python scripts/audit_query.py --purge`. Actor dùng user_id_hash hoặc tên
+    operator, không lưu user_id thô; mọi chuỗi đi qua scrub_text trước khi ghi.

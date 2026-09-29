@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Day 13 audit record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "audit_id", "ts", "action", "actor", "resource", "outcome", "correlation_id", "details"],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "audit_id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+    "ts": {"type": "string", "format": "date-time"},
+    "action": {"type": "string", "enum": ["chat.request", "incident.enable", "incident.disable"]},
+    "actor": {"type": "string", "pattern": "^(user|operator):"},
+    "resource": {"type": "string", "pattern": "^(feature|incident):"},
+    "outcome": {"type": "string", "enum": ["success", "failure", "denied"]},
+    "correlation_id": {"type": ["string", "null"]},
+    "details": {"type": "object"}
+  }
+}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -25,11 +26,16 @@ def main() -> None:
         help="Chỉ dùng cho practice. Bỏ tham số này để đọc config/challenge.json.",
     )
     parser.add_argument("--disable", action="store_true")
+    parser.add_argument(
+        "--operator",
+        default=os.getenv("OPERATOR", "inject-script"),
+        help="Tên người thao tác, ghi vào audit log qua header x-operator.",
+    )
     args = parser.parse_args()
 
     scenario = resolve_incident(args.scenario)
     path = f"/incidents/{scenario}/disable" if args.disable else f"/incidents/{scenario}/enable"
-    r = httpx.post(f"{BASE_URL}{path}", timeout=10.0)
+    r = httpx.post(f"{BASE_URL}{path}", headers={"x-operator": args.operator}, timeout=10.0)
     print(r.status_code, r.json())
 
 

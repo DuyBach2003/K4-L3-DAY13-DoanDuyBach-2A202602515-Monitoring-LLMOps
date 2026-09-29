@@ -1,0 +1,24 @@
+# Bonus: audit log riêng (data/audit.jsonl) — schema, truy vấn, retention — chạy trong repo lúc 2026-09-29 16:54:36 +0700
+
+$ .venv/bin/python scripts/audit_query.py --validate
+Schema: 14/14 bản ghi hợp lệ (config/audit_schema.json)
+
+$ .venv/bin/python scripts/audit_query.py --summary
+action: chat.request=11, incident.disable=1, incident.enable=2
+outcome: denied=1, success=13
+actor: operator:duybach=3, user:105a9cef3903=1, user:1632c29ecdec=1, user:2055254ee30a=1, user:2f015d970c0b=1, user:4c4f62330d76=1, user:4d14d5d4f719=1, user:64f6ec689229=1, user:70b5029f0acd=1, user:75af07890985=1, user:95b6504a8bd6=1, user:97ce842ec69d=1
+tổng: 14 bản ghi
+
+$ .venv/bin/python scripts/audit_query.py --action incident.enable
+{"schema_version": 1, "audit_id": "7a756c6e34e04e37bbdc622e1be8fb64", "ts": "2026-09-29T09:53:02.699610Z", "action": "incident.enable", "actor": "operator:duybach", "resource": "incident:rag_slow", "outcome": "success", "correlation_id": "req-94382251", "details": {"incidents": {"rag_slow": true, "tool_fail": false, "cost_spike": false}}}
+{"schema_version": 1, "audit_id": "d8b85e760ecd4f51a8f648904f5fbd4c", "ts": "2026-09-29T09:53:05.473767Z", "action": "incident.enable", "actor": "operator:duybach", "resource": "incident:db_down", "outcome": "denied", "correlation_id": "req-2fbe1027", "details": {"reason": "unknown_incident"}}
+
+$ .venv/bin/python scripts/audit_query.py --correlation-id req-audit5c01
+{"schema_version": 1, "audit_id": "aa814b7c715745d1b0587ca674bb2386", "ts": "2026-09-29T09:53:05.377326Z", "action": "chat.request", "actor": "user:70b5029f0acd", "resource": "feature:monitoring", "outcome": "success", "correlation_id": "req-audit5c01", "details": {"session_id": "s_audit", "model": "claude-sonnet-4-5", "cost_usd": 0.002751}}
+
+$ .venv/bin/python scripts/audit_query.py --purge --dry-run
+Retention 90 ngày, cutoff 2026-07-01T09:54:36.204647+00:00: giữ 14, xóa 0
+
+# Giả lập 91 ngày sau để thấy retention 90 ngày sẽ xóa các bản ghi này (--dry-run, không ghi file):
+$ .venv/bin/python scripts/audit_query.py --purge --dry-run --now 2026-12-29T12:00:00Z
+Retention 90 ngày, cutoff 2026-09-30T12:00:00+00:00: giữ 0, xóa 14
