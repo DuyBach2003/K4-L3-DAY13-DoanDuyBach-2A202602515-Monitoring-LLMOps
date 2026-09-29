@@ -1,0 +1,15 @@
+Nguồn: Langfuse project day13-k4-l3a-02515, GET /api/public/v2/observations?traceId=c5bc5416ad4e037a4db759b9a5b5eaf6&fields=core,basic,time,model,usage,prompt,metadata
+(đã bỏ các field scope.* / resourceAttributes.*; không có public key trong file này)
+
+TRACE c5bc5416ad4e037a4db759b9a5b5eaf6  session=session-01  user=2055254ee30a  env=dev
+AGENT      lab-agent-run  id=f86ba72addcc8826  parent=-  start=2026-09-29T08:48:56.799Z  latency= 1101ms
+   metadata: {"correlation_id": "req-ee306d64", "model": "claude-sonnet-4-5", "feature": "qa", "prompt_fetch_error": "", "prompt_source": "langfuse", "prompt_version": 2, "prompt_label": "production", "prompt_name": "day13-chat", "query_preview": "Explain observability", "doc_count": 1}
+  └─ RETRIEVER  retrieval     id=e607d2059bac9255  parent=f86ba72addcc8826  start=2026-09-29T08:48:56.800Z  latency=    0ms
+       metadata: {"correlation_id": "req-ee306d64", "model": "claude-sonnet-4-5", "feature": "qa"}
+  └─ GENERATION llm-generate  id=47cc4c8c154f61ee  parent=f86ba72addcc8826  start=2026-09-29T08:48:57.741Z  latency=  158ms
+       model=claude-sonnet-4-5  usage={"input": 35, "output": 99, "total": 134}  cost_usd=0.00159  price_in/out=0.000003/0.000015 per token
+       prompt=day13-chat v2
+       metadata: {"correlation_id": "req-ee306d64", "model": "claude-sonnet-4-5", "feature": "qa", "ttft_ms": 52}
+
+Kết luận: retrieval và llm-generate đều là con trực tiếp của root lab-agent-run (parent=f86ba72addcc8826), chạy tuần tự.
+Generation llm-generate ghi model, usage (input/output/total) và cost; prompt day13-chat version 2 (label production).

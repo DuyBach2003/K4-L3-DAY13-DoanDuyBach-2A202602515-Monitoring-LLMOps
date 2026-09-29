@@ -31,6 +31,9 @@ def scrub_event(_: Any, __: str, event_dict: dict[str, Any]) -> dict[str, Any]:
         }
     if "event" in event_dict and isinstance(event_dict["event"], str):
         event_dict["event"] = scrub_text(event_dict["event"])
+    for key, value in event_dict.items():
+        if key not in ("payload", "event") and isinstance(value, str):
+            event_dict[key] = scrub_text(value)
     return event_dict
 
 
@@ -42,8 +45,7 @@ def configure_logging() -> None:
             merge_contextvars,
             structlog.processors.add_log_level,
             structlog.processors.TimeStamper(fmt="iso", utc=True, key="ts"),
-            # TODO: Register your PII scrubbing processor here
-            # scrub_event,
+            scrub_event,
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             JsonlFileProcessor(),

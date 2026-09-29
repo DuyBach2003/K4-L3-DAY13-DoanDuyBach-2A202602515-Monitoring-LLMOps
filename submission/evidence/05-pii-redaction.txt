@@ -1,0 +1,17 @@
+# Input gửi lên /chat (session s_pii): "My email is a@b.com phone 0901234567 CCCD 012345678901 card 4111 1111 1111 1111"
+
+$ grep s_pii data/logs.jsonl | grep request_received
+{"service": "api", "payload": {"message_preview": "My email is [REDACTED_EMAIL] phone [REDACTED_PHONE_VN] CCCD [REDACTED_CCCD] card..."}, "event": "request_received", "feature": "qa", "model": "claude-sonnet-4-5", "session_id": "s_pii", "correlation_id": "req-5bdc4330", "env": "dev", "user_id_hash": "8eaeeec69eb2", "level": "info", "ts": "2026-09-29T07:05:38.723991Z"}
+# message_preview bị cắt ở 80 ký tự (summarize_text) nên phần số thẻ chỉ còn "card..."; xem hai lệnh dưới để thấy số thẻ bị che.
+
+$ grep req-e16a57e3 data/logs.jsonl | grep request_received
+{"service": "api", "payload": {"message_preview": "What is the policy for PII and credit card [REDACTED_CREDIT_CARD]?"}, "event": "request_received", "feature": "qa", "model": "claude-sonnet-4-5", "session_id": "s09", "correlation_id": "req-e16a57e3", "env": "dev", "user_id_hash": "4d14d5d4f719", "level": "info", "ts": "2026-09-29T07:05:20.006244Z"}
+
+$ python -c 'from app.pii import scrub_text; print(scrub_text("My email is a@b.com phone 0901234567 CCCD 012345678901 card 4111 1111 1111 1111"))'
+My email is [REDACTED_EMAIL] phone [REDACTED_PHONE_VN] CCCD [REDACTED_CCCD] card [REDACTED_CREDIT_CARD]
+
+$ grep -cE '4111[ -]?1111[ -]?1111[ -]?1111|a@b\.com|0901234567|012345678901' data/logs.jsonl
+0
+
+$ grep -c REDACTED_CREDIT_CARD data/logs.jsonl
+16

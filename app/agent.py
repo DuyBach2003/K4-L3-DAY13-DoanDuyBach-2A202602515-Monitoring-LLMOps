@@ -9,7 +9,7 @@ from .mock_llm import FakeLLM
 from .mock_rag import retrieve
 from .pii import hash_user_id, summarize_text
 from .prompt_management import resolve_prompt
-from .tracing import get_langfuse_client, observe, propagate_attributes, tracing_enabled
+from .tracing import get_langfuse_client, observe, propagate_attributes, start_observation, tracing_enabled
 
 
 @dataclass
@@ -51,7 +51,15 @@ class LabAgent:
             },
         ):
             started = time.perf_counter()
-            docs = retrieve(message)
+            with start_observation(
+                langfuse_client,
+                name="retrieval",
+                as_type="retriever",
+                input=summarize_text(message),
+            ) as retrieval_span:
+                docs = retrieve(message)
+                if retrieval_span is not None:
+                    retrieval_span.update(output={"doc_count": len(docs)})
             prompt = resolve_prompt(
                 langfuse_client,
                 feature=feature,
@@ -71,11 +79,35 @@ class LabAgent:
                 },
                 version=prompt.version,
             )
-            # TODO (CP2): instrument retrieve() and FakeLLM.generate() as child
-            # observations. The nested generation must receive prompt, usage and cost.
             with propagate_attributes(prompt=prompt.managed_prompt):
-                response = self.llm.generate(prompt.text)
+                with start_observation(
+                    langfuse_client,
+                    name="llm-generate",
+                    as_type="generation",
+                    model=self.model,
+                    prompt=prompt.managed_prompt,
+                    input=summarize_text(prompt.text, 200),
+                ) as generation:
+                    response = self.llm.generate(prompt.text)
+                    if generation is not None:
+                        generation.update(
+                            output=summarize_text(response.text, 200),
+                            usage_details={
+                                "input": response.usage.input_tokens,
+                                "output": response.usage.output_tokens,
+                            },
+                            cost_details={
+                                "total": self._estimate_cost(
+                                    response.usage.input_tokens, response.usage.output_tokens
+                                )
+                            },
+                            metadata={"ttft_ms": response.ttft_ms},
+                        )
             quality_score = self._heuristic_quality(message, response.text, docs)
+            score_trace = getattr(langfuse_client, "score_current_trace", None)
+            if score_trace is not None and tracing_enabled():
+                # Score Langfuse để panel Quality Score (avg) có dữ liệu.
+                score_trace(name="quality_score", value=quality_score, data_type="NUMERIC")
             latency_ms = int((time.perf_counter() - started) * 1000)
             cost_usd = self._estimate_cost(response.usage.input_tokens, response.usage.output_tokens)
 

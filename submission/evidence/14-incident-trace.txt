@@ -1,0 +1,30 @@
+Challenge ID: day13-k4-l3a-monitoring-llmops-v1
+Nguồn: Langfuse project day13-k4-l3a-02515, GET /api/public/v2/observations (fromStartTime=2026-09-29T09:05:10Z, toStartTime=2026-09-29T09:05:30Z)
+
+TRACE 57c97e9564d69ddbe9684efd874331d7  session=k4-l3a-challenge-s03  correlation_id=req-4c129a7d  total=2660ms
+  AGENT      lab-agent-run  start=2026-09-29T09:05:13.586Z  latency= 2660ms (100.0%)  {"correlation_id": "req-4c129a7d", "model": "claude-sonnet-4-5", "feature": "monitoring", "prompt_source": "langfuse", "prompt_version": 2, "prompt_label": "production", "prompt_name": "day13-chat", "query_preview": "Summarize the observability workflow for an AI API.", "doc_count": 1}
+    └─ RETRIEVER  retrieval      start=2026-09-29T09:05:13.586Z  latency= 2502ms (94.1%)  {"correlation_id": "req-4c129a7d", "model": "claude-sonnet-4-5", "feature": "monitoring"}
+    └─ GENERATION llm-generate   start=2026-09-29T09:05:16.089Z  latency=  156ms ( 5.9%)  {"correlation_id": "req-4c129a7d", "model": "claude-sonnet-4-5", "feature": "monitoring", "ttft_ms": 55}
+
+TRACE 492663aad3d4d1050a9fe4fef2211040  session=k4-l3a-challenge-s04  correlation_id=req-e2ac6712  total=2668ms
+  AGENT      lab-agent-run  start=2026-09-29T09:05:16.249Z  latency= 2668ms (100.0%)  {"correlation_id": "req-e2ac6712", "model": "claude-sonnet-4-5", "feature": "monitoring", "prompt_source": "langfuse", "prompt_version": 2, "prompt_label": "production", "prompt_name": "day13-chat", "query_preview": "Which signal should be checked after latency increases?", "doc_count": 1}
+    └─ RETRIEVER  retrieval      start=2026-09-29T09:05:16.249Z  latency= 2506ms (93.9%)  {"correlation_id": "req-e2ac6712", "model": "claude-sonnet-4-5", "feature": "monitoring"}
+    └─ GENERATION llm-generate   start=2026-09-29T09:05:18.756Z  latency=  161ms ( 6.0%)  {"correlation_id": "req-e2ac6712", "model": "claude-sonnet-4-5", "feature": "monitoring", "ttft_ms": 54}
+
+TRACE 0d9e3cf1ecfdc08868247e9f1c4f7b2a  session=k4-l3a-challenge-s05  correlation_id=req-1cabb84f  total=2667ms
+  AGENT      lab-agent-run  start=2026-09-29T09:05:18.920Z  latency= 2667ms (100.0%)  {"correlation_id": "req-1cabb84f", "model": "claude-sonnet-4-5", "feature": "monitoring", "prompt_source": "langfuse", "prompt_version": 2, "prompt_label": "production", "prompt_name": "day13-chat", "query_preview": "Describe how to prove a slow span is the root cause.", "doc_count": 1}
+    └─ RETRIEVER  retrieval      start=2026-09-29T09:05:18.920Z  latency= 2506ms (94.0%)  {"correlation_id": "req-1cabb84f", "model": "claude-sonnet-4-5", "feature": "monitoring"}
+    └─ GENERATION llm-generate   start=2026-09-29T09:05:21.426Z  latency=  161ms ( 6.0%)  {"correlation_id": "req-1cabb84f", "model": "claude-sonnet-4-5", "feature": "monitoring", "ttft_ms": 55}
+
+TRACE fbd6c4f6ed6f436ff41569c6be7e8b30  session=k4-l3a-challenge-s02  correlation_id=req-039618d3  total=2665ms
+  AGENT      lab-agent-run  start=2026-09-29T09:05:21.591Z  latency= 2665ms (100.0%)  {"correlation_id": "req-039618d3", "model": "claude-sonnet-4-5", "feature": "monitoring", "prompt_source": "langfuse", "prompt_version": 2, "prompt_label": "production", "prompt_name": "day13-chat", "query_preview": "How should an engineer investigate tail latency?", "doc_count": 1}
+    └─ RETRIEVER  retrieval      start=2026-09-29T09:05:21.591Z  latency= 2504ms (94.0%)  {"correlation_id": "req-039618d3", "model": "claude-sonnet-4-5", "feature": "monitoring"}
+    └─ GENERATION llm-generate   start=2026-09-29T09:05:24.095Z  latency=  161ms ( 6.0%)  {"correlation_id": "req-039618d3", "model": "claude-sonnet-4-5", "feature": "monitoring", "ttft_ms": 55}
+
+TRACE a54da677c631beae54151a25725c434c  session=k4-l3a-challenge-s01  correlation_id=req-56d251a4  total=2664ms
+  AGENT      lab-agent-run  start=2026-09-29T09:05:24.259Z  latency= 2664ms (100.0%)  {"correlation_id": "req-56d251a4", "model": "claude-sonnet-4-5", "feature": "monitoring", "prompt_source": "langfuse", "prompt_version": 2, "prompt_label": "production", "prompt_name": "day13-chat", "query_preview": "Explain why metrics traces and logs work together.", "doc_count": 1}
+    └─ RETRIEVER  retrieval      start=2026-09-29T09:05:24.259Z  latency= 2505ms (94.0%)  {"correlation_id": "req-56d251a4", "model": "claude-sonnet-4-5", "feature": "monitoring"}
+    └─ GENERATION llm-generate   start=2026-09-29T09:05:26.765Z  latency=  158ms ( 5.9%)  {"correlation_id": "req-56d251a4", "model": "claude-sonnet-4-5", "feature": "monitoring", "ttft_ms": 55}
+
+Kết luận trace: ở cả 5 trace, span `retrieval` (RETRIEVER) chiếm ~2.50s / ~2.66s (~94%); `llm-generate` chỉ ~0.16s như baseline.
+Span gây ảnh hưởng: retrieval.

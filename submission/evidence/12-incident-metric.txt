@@ -1,0 +1,23 @@
+Challenge ID: day13-k4-l3a-monitoring-llmops-v1 | incident: rag_slow | seed: 1311 | affected_feature: monitoring | latency_threshold_ms: 2000
+Nguồn: /metrics (in-memory, toàn bộ traffic từ lúc khởi động API) và data/logs.jsonl (event response_sent)
+
+== /metrics trước incident (evidence/metrics-snapshot.json) ==
+{"traffic":11,"latency_p50":159.0,"latency_p95":160.0,"latency_p99":160.0,"ttft_p95":55.0,"avg_cost_usd":0.0019,"total_cost_usd":0.0206,"tokens_in_total":378,"tokens_out_total":1297,"error_breakdown":{},"quality_avg":0.8818}
+
+== /metrics sau challenge (2026-09-29T09:07Z, trước khi disable, lúc incident đang bật) ==
+{"traffic":49,"latency_p50":161.0,"latency_p95":2667.0,"latency_p99":2668.0,"ttft_p95":55.0,"avg_cost_usd":0.0021,"total_cost_usd":0.1047,"tokens_in_total":2144,"tokens_out_total":6548,"error_breakdown":{},"quality_avg":0.8755}
+
+== Latency theo cửa sổ thời gian (data/logs.jsonl, response_sent, UTC) ==
+trước incident 09:02–09:05:13         n= 30  p50=   158ms  p95=   162ms  p99=  2022ms  ttft_p95= 55ms  >2000ms=1  retrieval_success=30/30
+challenge      09:05:13–09:05:27      n=  5  p50=  2665ms  p95=  2668ms  p99=  2668ms  ttft_p95= 55ms  >2000ms=5  retrieval_success=5/5   <- 5 query monitoring của challenge
+incident on    09:05:13–09:07:19      n= 25  p50=  2664ms  p95=  2667ms  p99=  2668ms  ttft_p95= 55ms  >2000ms=25  retrieval_success=25/25   <- mọi feature (kèm traffic load test nền)
+sau disable    >= 09:07:19            n= 11  p50=   159ms  p95=   161ms  p99=   161ms  ttft_p95= 55ms  >2000ms=0  retrieval_success=11/11
+(1 request 2022ms trước incident là req-ee9f44bb lúc 09:02:54Z — request đầu tiên sau khi API khởi động lại, cold start; không lặp lại.)
+
+== Incident toggle (log) ==
+2026-09-29T09:05:13.529304Z  incident_enabled  {'name': 'rag_slow'}
+2026-09-29T09:07:19.581756Z  incident_disabled  {'name': 'rag_slow'}
+
+Kết luận metric: từ 09:05:13Z P95 latency tăng 160ms -> 2667ms (vượt ngưỡng challenge 2000ms, 5/5 query challenge > 2000ms),
+trong khi TTFT P95 giữ nguyên 55ms, error = 0, retrieval success 100%, tokens/cost không đổi
+=> chậm xảy ra TRƯỚC bước generation, không phải lỗi và không phải LLM.

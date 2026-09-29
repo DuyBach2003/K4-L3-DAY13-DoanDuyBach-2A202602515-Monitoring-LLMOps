@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from typing import Any
 
 try:
@@ -40,3 +40,11 @@ def tracing_enabled() -> bool:
     return LANGFUSE_SDK_AVAILABLE and bool(
         os.getenv("LANGFUSE_PUBLIC_KEY") and os.getenv("LANGFUSE_SECRET_KEY")
     )
+
+
+def start_observation(client: Any, **kwargs: Any):
+    """Open a child observation, or a no-op context when the client can't."""
+    starter = getattr(client, "start_as_current_observation", None)
+    if starter is None or not tracing_enabled():
+        return nullcontext()
+    return starter(**kwargs)
