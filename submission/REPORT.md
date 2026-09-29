@@ -8,7 +8,7 @@
 - **MSSV:** 2A202602515
 - **Lớp:** K4-L3A
 - **Repository URL:** https://github.com/DuyBach2003/K4-L3-DAY13-DoanDuyBach-2A202602515-Monitoring-LLMOps
-- **Commit SHA cuối:** `b9b483615efc67a34363af210a6cd6486e840082` — code, tests và toàn bộ evidence chạy trên commit này. Commit ngay sau nó (HEAD của `main`, là SHA nộp trên LMS) chỉ sửa đúng dòng này trong report, vì một commit không thể tự chứa SHA của chính nó.
+- **Commit SHA cuối:** `b9b483615efc67a34363af210a6cd6486e840082` — code, tests và toàn bộ evidence chạy trên commit này. Các commit sau nó (HEAD của `main` là SHA nộp trên LMS) chỉ sửa tài liệu/checklist, không đổi code, config hay evidence; SHA nộp không ghi được ở đây vì một commit không thể tự chứa SHA của chính nó.
 - **Challenge ID:** `day13-k4-l3a-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3a-02515`
 
@@ -149,4 +149,4 @@ Cách tạo các ảnh không phải Langfuse:
 - [x] Trace/prompt evidence thuộc project Langfuse cá nhân và ảnh không lộ key/secret.
 - [x] Repository chạy lại được theo README.
 - [x] Không có secret, API key, PII thô hoặc evidence của người khác/lớp khác.
-- [ ] URL repo và commit SHA cuối đã được nộp trên LMS/Codelabs.
+- [x] URL repo và commit SHA cuối đã được nộp trên LMS/Codelabs.
